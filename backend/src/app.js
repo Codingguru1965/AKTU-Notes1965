@@ -20,6 +20,7 @@ const configuredOrigins = (FRONTEND_ORIGIN || '')
 
 const allowedOrigins = [
   ...configuredOrigins,
+  'https://aktu-notes1965.vercel.app',
   'http://localhost:5173',
   'http://127.0.0.1:5173',
   'http://localhost:3000',
@@ -33,7 +34,10 @@ app.use(cors({
     if (NODE_ENV !== 'production' && /^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(normalized)) {
       return callback(null, true);
     }
-    if (allowedOrigins.includes(normalized)) {
+    if (
+      allowedOrigins.includes(normalized) ||
+      /^https:\/\/aktu-notes1965[a-z0-9-]*\.vercel\.app$/.test(normalized)
+    ) {
       return callback(null, true);
     }
     return callback(new Error(`CORS origin ${origin} is not allowed`));
