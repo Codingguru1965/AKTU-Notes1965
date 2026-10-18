@@ -1,0 +1,13 @@
+User-agent: *
+Allow: /
+Allow: /resources
+Allow: /about
+Allow: /contact
+Allow: /privacy
+Allow: /terms
+
+Disallow: /admin
+Disallow: /admin/
+Disallow: /api/admin/
+
+Sitemap: https://aktunotes1965.org/sitemap.xml
