@@ -45,6 +45,6 @@ export const errorHandler = (err, req, res, next) => {
   res.status(statusCode).json({
     success: false,
     error: err.message || 'Internal Server Error',
-    ...(NODE_ENV === 'development' ? { stack: err.stack } : {})
+    // Stack traces are omitted to prevent sensitive information disclosure
   });
 };
