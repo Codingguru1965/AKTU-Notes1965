@@ -94,7 +94,7 @@ NODE_ENV=development
 MONGODB_URI=mongodb://127.0.0.1:27017/aktu_notes1965
 FRONTEND_ORIGIN=http://localhost:5173
 JWT_SECRET=your_minimum_32_characters_random_secret_key_here
-JWT_EXPIRES_IN=7d
+JWT_EXPIRES_IN=24h
 COOKIE_NAME=aktu_token
 ADMIN_INITIAL_EMAIL=admin@example.com
 ADMIN_INITIAL_PASSWORD=YourSecurePassword123!
@@ -242,7 +242,7 @@ To deploy your existing data (admin account, published notes, and syllabus PDFs)
    - `MONGODB_URI`: *Your MongoDB Atlas connection string*
    - `FRONTEND_ORIGIN`: *Your production frontend URL (e.g., `https://your-app.vercel.app`)*
    - `JWT_SECRET`: *A secure random string of at least 32 characters*
-   - `JWT_EXPIRES_IN`: `7d`
+   - `JWT_EXPIRES_IN`: `24h`
    - `COOKIE_NAME`: `aktu_token`
 4. *Important:* Do NOT run `npm run seed` in production. Live data is migrated via MongoDB Atlas.
 
