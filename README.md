@@ -91,9 +91,9 @@ FRONTEND_ORIGIN=http://localhost:5173
 JWT_SECRET=super_secret_aktu_jwt_notes1965_dev_key_at_least_32_chars_long
 JWT_EXPIRES_IN=7d
 COOKIE_NAME=aktu_token
-ADMIN_INITIAL_EMAIL=admin@aktunotes1965.org
-ADMIN_INITIAL_PASSWORD=AdminSecurePass1965!
-ADMIN_INITIAL_NAME=Super Admin
+ADMIN_INITIAL_EMAIL=ankit@1965gmail.co.in
+ADMIN_INITIAL_PASSWORD=Ankit@()1965
+ADMIN_INITIAL_NAME=Super_Admin
 `
 
 ### Step 3: Bootstrap Admin Account
@@ -101,8 +101,8 @@ ADMIN_INITIAL_NAME=Super Admin
 npm run create-admin
 `
 *Bootstrap credentials:*
-- **Email:** dmin@aktunotes1965.org
-- **Password:** AdminSecurePass1965!
+- **Email:** ankit@1965gmail.co.in
+- **Password:** Ankit@()1965
 
 ### Step 4: Seed Sample AKTU Resources
 `powershell

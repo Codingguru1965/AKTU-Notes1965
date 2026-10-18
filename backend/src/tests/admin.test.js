@@ -1,3 +1,4 @@
+import bcrypt from 'bcryptjs';
 import request from 'supertest';
 import app from '../app.js';
 import { connectDB, disconnectDB } from '../config/db.js';
@@ -6,6 +7,8 @@ import { Admin } from '../models/Admin.js';
 import { COOKIE_NAME } from '../config/env.js';
 
 describe('Admin Authentication & Resource CRUD Tests', () => {
+  const testAdminEmail = process.env.ADMIN_INITIAL_EMAIL || 'ankit@1965gmail.co.in';
+  const testAdminPassword = process.env.ADMIN_INITIAL_PASSWORD || 'Ankit@()1965';
   let adminCookie = '';
   let createdResourceId = '';
 
@@ -22,7 +25,7 @@ describe('Admin Authentication & Resource CRUD Tests', () => {
 
   test('POST /api/admin/login fails with invalid credentials', async () => {
     const res = await request(app).post('/api/admin/login').send({
-      email: 'admin@aktunotes1965.org',
+      email: testAdminEmail,
       password: 'WrongPassword123!'
     });
 
@@ -33,14 +36,14 @@ describe('Admin Authentication & Resource CRUD Tests', () => {
 
   test('POST /api/admin/login succeeds with valid credentials and sets cookie', async () => {
     const res = await request(app).post('/api/admin/login').send({
-      email: 'admin@aktunotes1965.org',
-      password: 'AdminSecurePass1965!'
+      email: testAdminEmail,
+      password: testAdminPassword
     });
 
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
     expect(res.body.admin).toBeDefined();
-    expect(res.body.admin.email).toBe('admin@aktunotes1965.org');
+    expect(res.body.admin.email).toBe(testAdminEmail);
 
     // Extract cookie
     const cookies = res.headers['set-cookie'];
@@ -57,7 +60,7 @@ describe('Admin Authentication & Resource CRUD Tests', () => {
 
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
-    expect(res.body.admin.email).toBe('admin@aktunotes1965.org');
+    expect(res.body.admin.email).toBe(testAdminEmail);
   });
 
   test('GET /api/admin/me rejects unauthenticated request with 401', async () => {
