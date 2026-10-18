@@ -61,7 +61,7 @@ export const AdminLoginPage = () => {
                 autoComplete='email'
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder='ankit@1965gmail.co.in'
+                placeholder='admin@example.com'
               />
             </div>
           </div>

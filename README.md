@@ -1,7 +1,6 @@
 # AKTU Notes1965
 
 > **Tagline:** Study Smart. Score Better.  
-
 > **Mission:** A free, public, and open directory of academic resources for students of Dr. A.P.J. Abdul Kalam Technical University (AKTU), Uttar Pradesh.
 
 ---
@@ -15,10 +14,8 @@ Students can search, filter, preview, and download published resources directly 
 ### Supported Resources
 
 - **AKTU Syllabus PDFs:** Unit-wise breakdowns, course outcomes, reference textbooks, and question pattern distributions.
-
-- **Lecture Notes:** High-quality handwritten and typed notes from university faculty and top-performing students.
-
-- **Previous-Year Question Papers (PYQs):** Solved and unsolved past university end-semester papers.
+- **Lecture Notes:** High-quality notes from faculty and top-performing students.
+- **Previous-Year Question Papers (PYQs):** Past university end-semester question papers.
 
 ### Non-Affiliation Disclaimer
 
@@ -29,164 +26,113 @@ Students can search, filter, preview, and download published resources directly 
 ## 2. Technology Stack
 
 ### Frontend
-
 - **Framework:** React.js with Vite
-
 - **Routing:** React Router v7
-
 - **HTTP Client:** Axios (configured with credentials and base URL interceptors)
-
-- **Styling:** Bootstrap 5 with tailored CSS design tokens matching the academic brand palette
-
-- **Icons:** React Icons (react-icons/fi)
-
+- **Styling:** Bootstrap 5 with custom CSS design tokens matching the brand palette
+- **Icons:** React Icons (`react-icons/fi`)
 - **Testing:** Vitest, React Testing Library, and jsdom
 
 ### Backend
-
 - **Runtime:** Node.js (ES Modules)
-
 - **Framework:** Express.js
-
 - **Database:** MongoDB Atlas / Local MongoDB with Mongoose ODM
-
-- **Authentication:** HTTP-only cookies storing JWT sessions
-
+- **Authentication:** Server-verified HTTP-only cookies storing JWT sessions
 - **Password Security:** bcryptjs (salted with 12 rounds)
-
-- **Validation:** Zod schemas on both incoming request bodies and query parameters
-
+- **Validation:** Zod schemas for both request bodies and query parameters
 - **Security:** Helmet (HTTP security headers), strict CORS allowlist, express-rate-limit (brute-force login protection)
-
 - **Testing:** Jest, Supertest, and Cross-Env
 
 ---
 
 ## 3. Brand Identity & Visual Design
 
-- **Primary Navy:** #102C54
-
-- **Sky Blue:** #72B7FF
-
-- **White:** #FFFFFF
-
-- **Light Background:** #F5F8FC
-
-- **Main Text:** #172033
-
-- **Muted Text:** #64748B
+- **Primary Navy:** `#102C54`
+- **Sky Blue:** `#72B7FF`
+- **White:** `#FFFFFF`
+- **Light Background:** `#F5F8FC`
+- **Main Text:** `#172033`
+- **Muted Text:** `#64748B`
 
 ### Logo Assets
-
-- frontend/public/logo.svg: Main brand logo with graduation cap, open book, wordmark, and tagline.
-
-- frontend/public/icon.svg: Compact mobile navbar emblem and vector favicon.
-
-- frontend/src/assets/logo.svg: Bundled React asset.
+- `frontend/public/logo.svg`: Main brand logo with graduation cap, open book, wordmark, and tagline.
+- `frontend/public/icon.svg`: Compact mobile navbar emblem and vector favicon.
+- `frontend/src/assets/logo.svg`: Bundled React asset.
 
 ---
 
 ## 4. Prerequisites
 
 - **Node.js:** v18.0.0 or higher (v24 LTS tested)
-
 - **npm:** v9.0.0 or higher
-
-- **MongoDB:** Local MongoDB instance running on mongodb://127.0.0.1:27017 OR a MongoDB Atlas cluster URI.
+- **MongoDB:** Local MongoDB instance running on `mongodb://127.0.0.1:27017` OR a MongoDB Atlas cluster URI.
 
 ---
 
-## 5. Installation and Setup
+## 5. Local Installation & Setup
 
-Open Windows PowerShell and navigate to the root directory:
+Open Windows PowerShell and navigate to the project root directory:
 
-`powershell
-
+```powershell
 Set-Location 'D:\PROJECTS\AKTU-Notes1965'
-
-`
+```
 
 ### Step 1: Install Backend Dependencies
 
-`powershell
-
+```powershell
 Set-Location 'D:\PROJECTS\AKTU-Notes1965\backend'
-
 npm install
-
-`
+```
 
 ### Step 2: Configure Backend Environment Variables
 
-Create .env inside backend/:
+Create `.env` inside `backend/` using the following template:
 
-`ini
-
+```ini
 PORT=5000
-
 NODE_ENV=development
-
 MONGODB_URI=mongodb://127.0.0.1:27017/aktu_notes1965
-
 FRONTEND_ORIGIN=http://localhost:5173
-
-JWT_SECRET=super_secret_aktu_jwt_notes1965_dev_key_at_least_32_chars_long
-
+JWT_SECRET=your_minimum_32_characters_random_secret_key_here
 JWT_EXPIRES_IN=7d
-
 COOKIE_NAME=aktu_token
-
-ADMIN_INITIAL_EMAIL=ankit@1965gmail.co.in
-
+ADMIN_INITIAL_EMAIL=admin@example.com
 ADMIN_INITIAL_PASSWORD=YourSecurePassword123!
-
 ADMIN_INITIAL_NAME=Super_Admin
+```
 
-`
+> **Security Note:** Never commit `.env` to Git. Keep actual passwords, JWT secrets, and database credentials only in local `.env` files.
 
-### Step 3: Bootstrap Admin Account
+### Step 3: Bootstrap Initial Admin Account (First-Time Setup Only)
 
-`powershell
-
+```powershell
 npm run create-admin
+```
 
-`
+This bootstraps the initial administrator account using the `ADMIN_INITIAL_EMAIL` and `ADMIN_INITIAL_PASSWORD` defined in your local `backend/.env`.
 
-*Bootstrap credentials:*
+### Step 4: Seed Sample AKTU Resources (Local Development Only)
 
-- **Email:** ankit@1965gmail.co.in
-
-- **Password:** [Configured in .env / Secure Password]
-
-### Step 4: Seed Sample AKTU Resources
-
-`powershell
-
+```powershell
 npm run seed
+```
 
-`
-
-Seeds 18 initial syllabus PDFs, lecture notes, and PYQs across CSE, IT, ECE, EE, ME, and Civil.
+> **Caution:** `npm run seed` is strictly intended for local development and testing. Do NOT run this command in production or on an existing database, as it is only intended to populate dummy test data.
 
 ### Step 5: Install Frontend Dependencies
 
-`powershell
-
+```powershell
 Set-Location 'D:\PROJECTS\AKTU-Notes1965\frontend'
-
 npm install
-
-`
+```
 
 ### Step 6: Configure Frontend Environment Variables
 
-Create .env inside frontend/:
+Create `.env` inside `frontend/`:
 
-`ini
-
+```ini
 VITE_API_URL=http://localhost:5000/api
-
-`
+```
 
 ---
 
@@ -196,149 +142,125 @@ Run backend and frontend in separate PowerShell windows:
 
 ### Terminal 1: Backend Server (Port 5000)
 
-`powershell
-
+```powershell
 Set-Location 'D:\PROJECTS\AKTU-Notes1965\backend'
+npm run dev
+```
 
-npm start
-
-`
-
-*Health Check:* http://localhost:5000/api/health
+*Health Check:* `http://localhost:5000/api/health`
 
 ### Terminal 2: Frontend Client (Port 5173)
 
-`powershell
-
+```powershell
 Set-Location 'D:\PROJECTS\AKTU-Notes1965\frontend'
-
 npm run dev
+```
 
-`
-
-*Public Website:* http://localhost:5173  
-
-*Admin Portal:* http://localhost:5173/admin/login
+*Public Website:* `http://localhost:5173`  
+*Admin Portal:* `http://localhost:5173/admin/login`
 
 ---
 
-## 7. Running Tests
+## 7. Running Automated Tests
 
 ### Backend Test Suite (Jest + Supertest)
 
-`powershell
-
+```powershell
 Set-Location 'D:\PROJECTS\AKTU-Notes1965\backend'
-
 npm test
-
-`
-
-*Results:* 24 of 24 tests passing.
+```
+*Coverage:* 24 of 24 tests passing (public endpoints, pagination, filters, admin auth, CRUD, validation).
 
 ### Frontend Component Tests (Vitest + React Testing Library)
 
-`powershell
-
+```powershell
 Set-Location 'D:\PROJECTS\AKTU-Notes1965\frontend'
-
 npm test
-
-`
-
-*Results:* 12 of 12 tests passing across all component and static page suites.
+```
+*Coverage:* 12 of 12 tests passing (Navbar, ResourceCard, ResourceFilters, AdminLoginPage, StaticPages).
 
 ### Production Build Validation
 
-`powershell
-
+```powershell
 Set-Location 'D:\PROJECTS\AKTU-Notes1965\frontend'
-
 npm run build
-
-`
+```
 
 ---
 
 ## 8. Application Security Architecture
 
 1. **Authentication:**
-
-   - Server-verified authentication utilizing secure HTTP-only cookies.
-
+   - Server-verified authentication utilizing secure HTTP-only cookies (`aktu_token`).
    - Passwords hashed with bcryptjs (12 salt rounds).
-
-   - JWT tokens never stored in localStorage to defend against XSS token theft.
-
+   - Session tokens are never stored in `localStorage` to defend against XSS token theft.
 2. **Rate Limiting:**
-
    - 10 login attempts per 15 minutes per IP to block brute-force attacks.
-
    - Public endpoint rate limiting (300 req / 15 min).
-
 3. **SSRF & Domain Whitelist:**
-
    - All resource file URLs are validated against approved storage providers (Google Drive, OneDrive, GitHub raw, AWS S3, Cloudinary, Firebase, Archive.org).
-
-   - Rejects loopback addresses (127.0.0.1, localhost, ::1) and internal private network ranges.
-
+   - Rejects loopback addresses (`127.0.0.1`, `localhost`, `::1`) and internal private network ranges.
 4. **Data Minimization:**
-
    - Students browse and download without accounts, tracking, or registration fees.
-
    - Broken link reports collect only resource ID and description without personal identifiers.
-
 5. **NoSQL Injection Defense:**
-
    - Sanitized regex queries and strict schema-based input parsing with Zod.
 
 ---
 
-## 9. Deployment Guide
+## 9. Production Deployment Guide
 
-### Backend Deployment (e.g., Render, Railway, AWS ECS)
+### A. Database Migration (Local to MongoDB Atlas)
 
-1. **MongoDB Atlas:**
+To deploy your existing data (admin account, published notes, and syllabus PDFs) to MongoDB Atlas without manual re-entry:
 
+1. **Create an Atlas Cluster:**
+   - Log in to [MongoDB Atlas](https://cloud.mongodb.com) and create a free M0 cluster.
    - Create a database user with read/write access.
+   - In **Network Access**, add `0.0.0.0/0` (allow access from anywhere) or specific host IPs.
+   - Copy your connection string (`mongodb+srv://<user>:<password>@cluster0.mongodb.net/aktu_notes1965?retryWrites=true&w=majority`).
+2. **Migrate Existing Data (1-Command Safe Migration):**
+   ```powershell
+   Set-Location 'D:\PROJECTS\AKTU-Notes1965\backend'
+   # 1. Export local database to a secure local JSON backup (gitignored)
+   npm run export-db
 
-   - Allow network access (0.0.0.0/0 or static outbound IP).
+   # 2. Import backup into your MongoDB Atlas cluster (uses upsert to prevent duplicates)
+   npm run import-db -- "YOUR_ATLAS_CONNECTION_STRING"
+   ```
 
-2. **Environment Variables:**
+### B. Backend Deployment (e.g., Render, Railway)
 
-   - PORT: 5000
+1. Connect your GitHub repository to Render as a **Web Service**.
+2. **Configuration:**
+   - **Root Directory:** `backend`
+   - **Build Command:** `npm install`
+   - **Start Command:** `npm start`
+3. **Environment Variables Required in Host Dashboard:**
+   - `PORT`: `5000` (or host-provided port)
+   - `NODE_ENV`: `production`
+   - `MONGODB_URI`: *Your MongoDB Atlas connection string*
+   - `FRONTEND_ORIGIN`: *Your production frontend URL (e.g., `https://your-app.vercel.app`)*
+   - `JWT_SECRET`: *A secure random string of at least 32 characters*
+   - `JWT_EXPIRES_IN`: `7d`
+   - `COOKIE_NAME`: `aktu_token`
+4. *Important:* Do NOT run `npm run seed` in production. Live data is migrated via MongoDB Atlas.
 
-   - NODE_ENV: production
+### C. Frontend Deployment (e.g., Vercel, Netlify)
 
-   - MONGODB_URI: mongodb+srv://<user>:<password>@cluster0.mongodb.net/aktu_notes1965?retryWrites=true&w=majority
-
-   - FRONTEND_ORIGIN: https://your-frontend-domain.vercel.app
-
-   - JWT_SECRET: Random 32+ character string
-
-   - COOKIE_NAME: ktu_token
-
-3. Set build command to `npm install` and start command to `npm start`.
-
-4. Run `npm run create-admin` and `npm run seed` in the build console.
-
-### Frontend Deployment (e.g., Vercel, Netlify)
-
-1. Connect repository with root directory set to `frontend`.
-
-2. Build command: `npm run build`, Output directory: dist.
-
-3. Set environment variable:
-
-   - VITE_API_URL: https://your-backend.onrender.com/api
+1. Import your GitHub repository into Vercel as a new project.
+2. **Configuration:**
+   - **Root Directory:** `frontend`
+   - **Framework Preset:** `Vite`
+   - **Build Command:** `npm run build`
+   - **Output Directory:** `dist`
+3. **Environment Variables Required in Vercel:**
+   - `VITE_API_URL`: *Your production backend URL with `/api` (e.g., `https://your-backend.onrender.com/api`)*
+4. Client-side SPA routing is handled automatically via `frontend/vercel.json`.
 
 ---
 
 ## 10. Known Limitations
 
-- **File Hosting:** Resources point to external approved storage providers (Google Drive, GitHub, AWS S3) to avoid bloating MongoDB documents.
-
-- **Curriculum Regulations:** AKTU syllabus updates (CBCS, K-Series) are tracked via optional 
-
-egulation and cademicYear tags on each resource.
-
+- **File Hosting:** Study materials are hosted via external approved storage providers (Google Drive, GitHub raw, AWS S3) rather than storing large binary blobs in MongoDB.
+- **Curriculum Regulations:** AKTU syllabus changes across batches (CBCS, K-Series, NEP) are categorized via optional `regulation` and `academicYear` tags on each resource.

@@ -7,8 +7,8 @@ import { Admin } from '../models/Admin.js';
 import { COOKIE_NAME } from '../config/env.js';
 
 describe('Admin Authentication & Resource CRUD Tests', () => {
-  const testAdminEmail = process.env.ADMIN_INITIAL_EMAIL || 'ankit@1965gmail.co.in';
-  const testAdminPassword = process.env.ADMIN_INITIAL_PASSWORD || 'Ankit@()1965';
+  const testAdminEmail = process.env.ADMIN_INITIAL_EMAIL || 'admin@example.com';
+  const testAdminPassword = process.env.ADMIN_INITIAL_PASSWORD || 'TestPassSecure123!';
   let adminCookie = '';
   let createdResourceId = '';
 

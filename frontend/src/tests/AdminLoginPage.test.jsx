@@ -41,11 +41,11 @@ describe('AdminLoginPage Component', () => {
     const emailInput = screen.getByLabelText(/admin email/i);
     const passwordInput = screen.getByLabelText(/password/i);
 
-    fireEvent.change(emailInput, { target: { value: 'ankit@1965gmail.co.in' } });
-    fireEvent.change(passwordInput, { target: { value: 'Ankit@()1965' } });
+    fireEvent.change(emailInput, { target: { value: 'admin@example.com' } });
+    fireEvent.change(passwordInput, { target: { value: 'AdminPass123!' } });
 
-    expect(emailInput.value).toBe('ankit@1965gmail.co.in');
-    expect(passwordInput.value).toBe('Ankit@()1965');
+    expect(emailInput.value).toBe('admin@example.com');
+    expect(passwordInput.value).toBe('AdminPass123!');
   });
 
   it('calls login function on form submission', async () => {
@@ -66,12 +66,12 @@ describe('AdminLoginPage Component', () => {
     const passwordInput = screen.getByLabelText(/password/i);
     const submitBtn = screen.getByRole('button', { name: /sign in/i });
 
-    fireEvent.change(emailInput, { target: { value: 'ankit@1965gmail.co.in' } });
-    fireEvent.change(passwordInput, { target: { value: 'Ankit@()1965' } });
+    fireEvent.change(emailInput, { target: { value: 'admin@example.com' } });
+    fireEvent.change(passwordInput, { target: { value: 'AdminPass123!' } });
     fireEvent.click(submitBtn);
 
     await waitFor(() => {
-      expect(mockLogin).toHaveBeenCalledWith('ankit@1965gmail.co.in', 'Ankit@()1965');
+      expect(mockLogin).toHaveBeenCalledWith('admin@example.com', 'AdminPass123!');
     });
   });
 });
