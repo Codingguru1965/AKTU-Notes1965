@@ -12,7 +12,7 @@ export const Hero = ({ searchQuery, onSearchChange, onSearchSubmit }) => {
         </div>
 
         <h1 id='hero-heading' className='hero-title mb-3'>
-          Your AKTU Study Materials,<br className='d-none d-md-block' /> All in One Place
+          AKTU Study Materials,<br className='d-none d-md-block' /> All in One Place
         </h1>
 
         <p className='hero-subtitle mb-4'>
