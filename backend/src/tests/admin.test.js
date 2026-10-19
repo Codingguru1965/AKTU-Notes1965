@@ -120,6 +120,52 @@ describe('Admin Authentication & Resource CRUD Tests', () => {
     expect(res.body.data.filename).toBeDefined();
   });
 
+  test('POST /admin/upload alias successfully uploads a PDF file', async () => {
+    const pdfBuffer = Buffer.from('%PDF-1.4 test document alias content %%EOF');
+    const res = await request(app)
+      .post('/admin/upload')
+      .set('Cookie', [adminCookie])
+      .attach('file', pdfBuffer, 'sample-alias-notes.pdf');
+
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data.fileUrl).toMatch(/^\/uploads\//);
+  });
+
+  test('POST /api/upload alias successfully uploads a PDF file', async () => {
+    const pdfBuffer = Buffer.from('%PDF-1.4 test document api upload content %%EOF');
+    const res = await request(app)
+      .post('/api/upload')
+      .set('Cookie', [adminCookie])
+      .attach('file', pdfBuffer, 'sample-api-upload-notes.pdf');
+
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data.fileUrl).toMatch(/^\/uploads\//);
+  });
+
+  test('POST /api/admin/upload rejects unauthenticated request with 401', async () => {
+    const pdfBuffer = Buffer.from('%PDF-1.4 unauthenticated document %%EOF');
+    const res = await request(app)
+      .post('/api/admin/upload')
+      .attach('file', pdfBuffer, 'unauth.pdf');
+
+    expect(res.status).toBe(401);
+    expect(res.body.success).toBe(false);
+  });
+
+  test('POST /api/admin/upload rejects non-PDF file with 400', async () => {
+    const textBuffer = Buffer.from('this is plain text, not a pdf');
+    const res = await request(app)
+      .post('/api/admin/upload')
+      .set('Cookie', [adminCookie])
+      .attach('file', textBuffer, 'malicious.exe');
+
+    expect(res.status).toBe(400);
+    expect(res.body.success).toBe(false);
+    expect(res.body.error).toContain('Only valid PDF documents');
+  });
+
   test('POST /api/admin/resources creates resource with /uploads/ URL and university field', async () => {
     const localUploadResource = {
       title: 'Local Uploaded Discrete Structures Comprehensive Notes',

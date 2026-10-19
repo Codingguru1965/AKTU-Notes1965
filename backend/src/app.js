@@ -8,6 +8,9 @@ import { FRONTEND_ORIGIN, NODE_ENV } from './config/env.js';
 import publicRoutes from './routes/publicRoutes.js';
 import adminRoutes from './routes/adminRoutes.js';
 import { notFoundHandler, errorHandler } from './middleware/errorHandler.js';
+import { requireAdminAuth } from './middleware/authMiddleware.js';
+import { uploadPdfMiddleware } from './middleware/uploadMiddleware.js';
+import { uploadPdfFile } from './controllers/adminResourceController.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -61,6 +64,11 @@ app.use('/uploads', express.static(path.resolve(__dirname, '../uploads')));
 
 app.use('/api', publicRoutes);
 app.use('/api/admin', adminRoutes);
+
+// Route aliases to ensure resilience against missing /api or /admin prefixes
+app.use('/admin', adminRoutes);
+app.post('/api/upload', requireAdminAuth, uploadPdfMiddleware.single('file'), uploadPdfFile);
+app.post('/upload', requireAdminAuth, uploadPdfMiddleware.single('file'), uploadPdfFile);
 
 app.use(notFoundHandler);
 app.use(errorHandler);

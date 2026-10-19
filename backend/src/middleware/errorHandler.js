@@ -10,6 +10,20 @@ export const notFoundHandler = (req, res, next) => {
 export const errorHandler = (err, req, res, next) => {
   console.error('[Error]', err.name, err.message);
 
+  if (err.name === 'MulterError') {
+    return res.status(400).json({
+      success: false,
+      error: `Upload error: ${err.message}`
+    });
+  }
+
+  if (err.message && err.message.includes('Only valid PDF documents')) {
+    return res.status(400).json({
+      success: false,
+      error: err.message
+    });
+  }
+
   if (err.name === 'CastError') {
     return res.status(400).json({
       success: false,

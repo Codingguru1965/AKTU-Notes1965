@@ -221,8 +221,9 @@ export const AdminResourceFormPage = () => {
       // If a local file was selected, upload it now
       if (pdfMode === 'upload' && selectedFile) {
         const uploadRes = await adminUploadPdf(selectedFile);
-        if (uploadRes.data && uploadRes.data.success) {
+        if (uploadRes.data && uploadRes.data.success && uploadRes.data.data?.fileUrl) {
           finalFileUrl = uploadRes.data.data.fileUrl;
+          setFormData((prev) => ({ ...prev, fileUrl: finalFileUrl }));
         } else {
           throw new Error('Failed to upload PDF file to server');
         }
@@ -233,14 +234,14 @@ export const AdminResourceFormPage = () => {
         university: formData.university.trim() || 'AKTU',
         resourceType: formData.resourceType,
         branch: formData.branch,
-        year: formData.year,
-        semester: formData.semester,
+        year: Number(formData.year),
+        semester: Number(formData.semester),
         subjectCode: formData.subjectCode.trim().toUpperCase(),
         subjectName: formData.subjectName.trim(),
         fileUrl: finalFileUrl,
         academicYear: formData.academicYear.trim(),
         regulation: formData.regulation.trim(),
-        isPublished: formData.isPublished
+        isPublished: Boolean(formData.isPublished)
       };
 
       if (isEdit) {

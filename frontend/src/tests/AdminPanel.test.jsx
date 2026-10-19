@@ -166,6 +166,73 @@ describe('Admin Panel Layout & Workflows', () => {
       expect(screen.getByLabelText(/resource title/i).value).toBe('Computer Networks Full Notes');
       expect(screen.getByLabelText(/subject code/i).value).toBe('KCS603');
     });
+
+    it('uploads local PDF and submits resource with returned fileUrl on publish', async () => {
+      const mockUploadRes = {
+        data: {
+          success: true,
+          message: 'PDF file uploaded successfully',
+          data: {
+            fileUrl: '/uploads/sample-unit1-notes-12345.pdf',
+            filename: 'sample-unit1-notes-12345.pdf'
+          }
+        }
+      };
+
+      const mockCreateRes = {
+        data: {
+          success: true,
+          message: 'Resource created successfully',
+          data: { _id: 'res-new-999' }
+        }
+      };
+
+      const uploadSpy = vi.spyOn(ApiModule, 'adminUploadPdf').mockResolvedValue(mockUploadRes);
+      const createSpy = vi.spyOn(ApiModule, 'adminCreateResource').mockResolvedValue(mockCreateRes);
+
+      const { container } = render(
+        <BrowserRouter>
+          <AdminResourceFormPage />
+        </BrowserRouter>
+      );
+
+      fireEvent.change(screen.getByLabelText(/resource title/i), {
+        target: { value: 'Compiler Design Unit 1 Notes' }
+      });
+      fireEvent.change(screen.getByLabelText(/subject code/i), {
+        target: { value: 'KCS701' }
+      });
+      fireEvent.change(screen.getByLabelText(/subject name/i), {
+        target: { value: 'Compiler Design' }
+      });
+
+      // Upload local PDF file
+      const file = new File(['%PDF-1.4 dummy pdf'], 'compiler-notes.pdf', { type: 'application/pdf' });
+      const fileInput = container.querySelector('#local-pdf-input');
+      fireEvent.change(fileInput, { target: { files: [file] } });
+
+      // Click "Save & Next"
+      fireEvent.click(screen.getByRole('button', { name: /save & next/i }));
+
+      // Review step reached
+      await waitFor(() => {
+        expect(screen.getByText('Compiler Design Unit 1 Notes')).toBeInTheDocument();
+        expect(screen.getByRole('button', { name: /publish resource/i })).toBeInTheDocument();
+      });
+
+      // Click "Publish Resource"
+      fireEvent.click(screen.getByRole('button', { name: /publish resource/i }));
+
+      await waitFor(() => {
+        expect(uploadSpy).toHaveBeenCalledWith(file);
+        expect(createSpy).toHaveBeenCalledWith(expect.objectContaining({
+          title: 'Compiler Design Unit 1 Notes',
+          subjectCode: 'KCS701',
+          subjectName: 'Compiler Design',
+          fileUrl: '/uploads/sample-unit1-notes-12345.pdf'
+        }));
+      });
+    });
   });
 
   describe('F: AdminReportsPage Issue Description Column', () => {
