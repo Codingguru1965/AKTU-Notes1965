@@ -1,8 +1,32 @@
-﻿node_modules/
+# Dependencies
+node_modules/
+
+# Environment variables
 .env
+.env.*
+!.env.example
+
+# Build files
 dist/
+dist-ssr/
 coverage/
-.DS_Store
+
+# Logs
+logs/
 *.log
+
+# Backups
 backup/
 *.backup
+
+# OS and editor files
+.DS_Store
+.vscode/
+.idea/
+
+# Local Git backup
+/frontend-git-backup/
+
+# Uploaded files
+backend/uploads/*
+!backend/uploads/.gitkeep

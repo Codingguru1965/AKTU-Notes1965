@@ -92,6 +92,7 @@ export const createResource = async (req, res, next) => {
       fileUrl,
       academicYear,
       regulation,
+      university,
       description,
       isPublished
     } = req.body;
@@ -122,6 +123,7 @@ export const createResource = async (req, res, next) => {
       fileUrl,
       academicYear: academicYear || '',
       regulation: regulation || '',
+      university: university || 'AKTU',
       description: description || '',
       isPublished: Boolean(isPublished)
     });
@@ -149,7 +151,7 @@ export const updateResource = async (req, res, next) => {
     const allowed = [
       'title', 'resourceType', 'branch', 'year', 'semester',
       'subjectCode', 'subjectName', 'fileUrl', 'academicYear',
-      'regulation', 'description', 'isPublished'
+      'regulation', 'university', 'description', 'isPublished'
     ];
 
     allowed.forEach(field => {
@@ -328,3 +330,29 @@ export const updateReportStatus = async (req, res, next) => {
     next(err);
   }
 };
+
+export const uploadPdfFile = async (req, res, next) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({
+        success: false,
+        error: 'No PDF file uploaded'
+      });
+    }
+
+    const relativePath = `/uploads/${req.file.filename}`;
+    res.status(200).json({
+      success: true,
+      message: 'PDF file uploaded successfully',
+      data: {
+        fileUrl: relativePath,
+        filename: req.file.filename,
+        originalName: req.file.originalname,
+        size: req.file.size
+      }
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+

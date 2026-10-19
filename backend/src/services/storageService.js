@@ -5,11 +5,20 @@ export const validateStorageUrl = (urlStr) => {
     return { valid: false, reason: 'URL is required' };
   }
 
+  const trimmed = urlStr.trim();
+  if (trimmed.startsWith('/uploads/')) {
+    return { valid: true, hostname: 'local' };
+  }
+
   let parsed;
   try {
-    parsed = new URL(urlStr.trim());
+    parsed = new URL(trimmed);
   } catch {
     return { valid: false, reason: 'Malformed URL format' };
+  }
+
+  if (parsed.pathname.startsWith('/uploads/')) {
+    return { valid: true, hostname: 'local' };
   }
 
   if (parsed.protocol !== 'https:') {
@@ -43,6 +52,14 @@ export const validateStorageUrl = (urlStr) => {
 export const transformStorageUrl = (urlStr) => {
   if (!urlStr) return urlStr;
   const trimmed = urlStr.trim();
+
+  if (trimmed.startsWith('/uploads/')) {
+    return {
+      originalUrl: trimmed,
+      downloadUrl: trimmed,
+      previewUrl: trimmed
+    };
+  }
 
   try {
     const parsed = new URL(trimmed);

@@ -13,13 +13,15 @@ import {
   togglePublishResource,
   getDashboardStats,
   getReports,
-  updateReportStatus
+  updateReportStatus,
+  uploadPdfFile
 } from '../controllers/adminResourceController.js';
 import { requireAdminAuth } from '../middleware/authMiddleware.js';
 import { validate } from '../middleware/validate.js';
 import { adminLoginSchema } from '../validators/authValidator.js';
 import { createResourceSchema, updateResourceSchema } from '../validators/resourceValidator.js';
 import { loginRateLimiter } from '../middleware/rateLimiter.js';
+import { uploadPdfMiddleware } from '../middleware/uploadMiddleware.js';
 
 const router = express.Router();
 
@@ -40,5 +42,6 @@ router.delete('/resources/:id', deleteResource);
 router.patch('/resources/:id/publish', togglePublishResource);
 router.get('/reports', getReports);
 router.patch('/reports/:id', updateReportStatus);
+router.post('/upload', uploadPdfMiddleware.single('file'), uploadPdfFile);
 
 export default router;

@@ -107,6 +107,49 @@ describe('Admin Authentication & Resource CRUD Tests', () => {
     createdResourceId = res.body.data._id;
   });
 
+  test('POST /api/admin/upload successfully uploads a PDF file', async () => {
+    const pdfBuffer = Buffer.from('%PDF-1.4 test document content %%EOF');
+    const res = await request(app)
+      .post('/api/admin/upload')
+      .set('Cookie', [adminCookie])
+      .attach('file', pdfBuffer, 'sample-unit1-notes.pdf');
+
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data.fileUrl).toMatch(/^\/uploads\//);
+    expect(res.body.data.filename).toBeDefined();
+  });
+
+  test('POST /api/admin/resources creates resource with /uploads/ URL and university field', async () => {
+    const localUploadResource = {
+      title: 'Local Uploaded Discrete Structures Comprehensive Notes',
+      resourceType: 'Notes',
+      branch: 'CSE',
+      year: 2,
+      semester: 3,
+      subjectCode: 'KCS303',
+      subjectName: 'Discrete Structures',
+      fileUrl: '/uploads/sample-unit1-notes.pdf',
+      university: 'AKTU',
+      academicYear: '2024-25',
+      regulation: 'CBCS',
+      isPublished: true
+    };
+
+    const res = await request(app)
+      .post('/api/admin/resources')
+      .set('Cookie', [adminCookie])
+      .send(localUploadResource);
+
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data.university).toBe('AKTU');
+    expect(res.body.data.fileUrl).toBe('/uploads/sample-unit1-notes.pdf');
+
+    // Clean up
+    await Resource.findByIdAndDelete(res.body.data._id);
+  });
+
   test('POST /api/admin/resources rejects invalid year-semester combination with 400', async () => {
     const invalidResource = {
       title: 'Invalid Year Semester Combination Resource',

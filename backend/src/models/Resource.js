@@ -62,6 +62,12 @@ const resourceSchema = new mongoose.Schema(
       required: [true, 'File URL is required'],
       trim: true
     },
+    university: {
+      type: String,
+      trim: true,
+      default: 'AKTU',
+      maxlength: [100, 'University name cannot exceed 100 characters']
+    },
     academicYear: {
       type: String,
       trim: true,

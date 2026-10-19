@@ -58,6 +58,15 @@ export const adminCreateResource = (data) => api.post('/admin/resources', data);
 export const adminUpdateResource = (id, data) => api.patch(`/admin/resources/${id}`, data);
 export const adminDeleteResource = (id) => api.delete(`/admin/resources/${id}`);
 export const adminTogglePublish = (id, isPublished) => api.patch(`/admin/resources/${id}/publish`, { isPublished });
+export const adminUploadPdf = (file) => {
+  const formData = new FormData();
+  formData.append('file', file);
+  return api.post('/admin/upload', formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data'
+    }
+  });
+};
 
 // Admin Report Endpoints
 export const adminGetReports = (params) => api.get('/admin/reports', { params });

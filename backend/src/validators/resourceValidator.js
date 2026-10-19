@@ -10,7 +10,16 @@ export const createResourceSchema = z.object({
   semester: z.coerce.number().int().min(1).max(8),
   subjectCode: z.string().trim().min(2).max(25),
   subjectName: z.string().trim().min(2).max(120),
-  fileUrl: z.string().trim().url('Invalid URL format'),
+  fileUrl: z.string().trim().min(1, 'File URL is required').refine(val => {
+    if (val.startsWith('/uploads/')) return true;
+    try {
+      new URL(val);
+      return true;
+    } catch {
+      return false;
+    }
+  }, { message: 'Invalid URL format' }),
+  university: z.string().trim().max(100).optional().default('AKTU'),
   academicYear: z.string().trim().max(30).optional().default(''),
   regulation: z.string().trim().max(40).optional().default(''),
   description: z.string().trim().max(2000).optional().default(''),
@@ -43,7 +52,16 @@ export const updateResourceSchema = z.object({
   semester: z.coerce.number().int().min(1).max(8).optional(),
   subjectCode: z.string().trim().min(2).max(25).optional(),
   subjectName: z.string().trim().min(2).max(120).optional(),
-  fileUrl: z.string().trim().url().optional(),
+  fileUrl: z.string().trim().min(1).refine(val => {
+    if (val.startsWith('/uploads/')) return true;
+    try {
+      new URL(val);
+      return true;
+    } catch {
+      return false;
+    }
+  }, { message: 'Invalid URL format' }).optional(),
+  university: z.string().trim().max(100).optional(),
   academicYear: z.string().trim().max(30).optional(),
   regulation: z.string().trim().max(40).optional(),
   description: z.string().trim().max(2000).optional(),
