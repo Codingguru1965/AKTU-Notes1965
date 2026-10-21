@@ -4,6 +4,7 @@ import { API_HOST } from '../../services/api';
 
 export const ResourceCard = ({ resource, onReport }) => {
   const [copied, setCopied] = useState(false);
+  const [downloading, setDownloading] = useState(false);
 
   const handleCopyLink = async () => {
     try {
@@ -25,16 +26,57 @@ export const ResourceCard = ({ resource, onReport }) => {
     }
   };
 
-  // Use the backend download endpoint — it increments downloadCount and redirects to actual file
-  const downloadHref = `${API_HOST}/api/resources/${resource._id}/download`;
-
-  // Preview: use previewUrl if different from downloadUrl, else fall back to downloadUrl
+  // Resolve file URLs — if relative /uploads/, prepend API_HOST
   const rawDownload = resource.downloadUrl || resource.fileUrl || '';
   const rawPreview = resource.previewUrl || resource.fileUrl || '';
-  const isLocalFile = rawDownload.startsWith('/uploads/') || rawPreview.startsWith('/uploads/');
-  const previewHref = isLocalFile
-    ? `${API_HOST}${rawPreview.startsWith('/') ? rawPreview : '/' + rawPreview}`
-    : rawPreview;
+
+  const getResolvedUrl = (url) => {
+    if (!url) return '';
+    if (url.startsWith('http://') || url.startsWith('https://')) {
+      return url;
+    }
+    if (url.startsWith('/uploads/')) {
+      return `${API_HOST}${url}`;
+    }
+    return `${API_HOST}/${url.replace(/^\/+/, '')}`;
+  };
+
+  const downloadHref = getResolvedUrl(rawDownload);
+  const previewHref = getResolvedUrl(rawPreview);
+  const isLocalUpload = rawDownload.startsWith('/uploads/');
+
+  const handleDownloadClick = async (e) => {
+    // Notify backend to increment download count in background
+    if (resource._id && API_HOST) {
+      fetch(`${API_HOST}/api/resources/${resource._id}/download`, { mode: 'no-cors' }).catch(() => {});
+    }
+
+    // For local uploads, use Blob download to trigger native browser File Save dialog
+    if (isLocalUpload && downloadHref) {
+      e.preventDefault();
+      try {
+        setDownloading(true);
+        const response = await fetch(downloadHref);
+        if (!response.ok) throw new Error('Download failed');
+        const blob = await response.blob();
+        const blobUrl = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = blobUrl;
+        const cleanTitle = (resource.title || 'document').replace(/[^a-zA-Z0-9_-]/g, '_');
+        const prefix = resource.subjectCode ? `${resource.subjectCode}_` : '';
+        link.download = `${prefix}${cleanTitle}.pdf`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        window.URL.revokeObjectURL(blobUrl);
+      } catch {
+        // Fallback to opening directly in a new tab if blob fetch fails
+        window.open(downloadHref, '_blank', 'noopener,noreferrer');
+      } finally {
+        setDownloading(false);
+      }
+    }
+  };
 
   return (
     <article className='resource-card p-3 position-relative' aria-label={resource.title}>
@@ -85,15 +127,17 @@ export const ResourceCard = ({ resource, onReport }) => {
         <div className='d-flex gap-2 flex-grow-1'>
           <a
             href={downloadHref}
-            download
+            target='_blank'
+            rel='noopener noreferrer'
+            onClick={handleDownloadClick}
             className='btn btn-primary-aktu btn-sm d-inline-flex align-items-center justify-content-center gap-1 flex-grow-1 py-2'
             aria-label={`Download PDF for ${resource.title}`}
           >
             <FiDownload size={14} />
-            <span>Download PDF</span>
+            <span>{downloading ? 'Downloading...' : 'Download PDF'}</span>
           </a>
 
-          {rawPreview && rawPreview !== rawDownload && (
+          {previewHref && previewHref !== downloadHref && (
             <a
               href={previewHref}
               target='_blank'

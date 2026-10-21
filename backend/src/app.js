@@ -69,6 +69,7 @@ app.use('/api/admin', adminRoutes);
 app.use('/admin', adminRoutes);
 app.post('/api/upload', requireAdminAuth, uploadPdfMiddleware.single('file'), uploadPdfFile);
 app.post('/upload', requireAdminAuth, uploadPdfMiddleware.single('file'), uploadPdfFile);
+app.use('/', publicRoutes);
 
 app.use(notFoundHandler);
 app.use(errorHandler);

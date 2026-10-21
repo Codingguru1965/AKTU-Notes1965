@@ -1,8 +1,15 @@
+import path from 'path';
+import fs from 'fs';
+import { fileURLToPath } from 'url';
 import { Resource } from '../models/Resource.js';
 import { Report } from '../models/Report.js';
 import { transformStorageUrl } from '../services/storageService.js';
 import { BRANCHES, RESOURCE_TYPES, SEMESTERS } from '../config/constants.js';
 import { BACKEND_URL } from '../config/env.js';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 
 export const getHealth = (req, res) => {
   res.status(200).json({
@@ -222,10 +229,23 @@ export const downloadResource = async (req, res, next) => {
     // Increment download count in background (non-blocking)
     Resource.findByIdAndUpdate(req.params.id, { $inc: { downloadCount: 1 } }).catch(() => {});
 
+    // If file is stored locally on disk, send directly with Content-Disposition: attachment
+    if (resource.fileUrl && resource.fileUrl.startsWith('/uploads/')) {
+      const filename = path.basename(resource.fileUrl);
+      const filePath = path.resolve(__dirname, '../../uploads', filename);
+
+      if (fs.existsSync(filePath)) {
+        const cleanTitle = (resource.title || 'document').replace(/[^a-zA-Z0-9_-]/g, '_');
+        const prefix = resource.subjectCode ? `${resource.subjectCode}_` : '';
+        const downloadName = `${prefix}${cleanTitle}.pdf`;
+        return res.download(filePath, downloadName);
+      }
+    }
+
     const transformed = transformStorageUrl(resource.fileUrl);
     let finalUrl = transformed.downloadUrl;
 
-    // If local upload, build absolute URL using BACKEND_URL
+    // If local upload URL without local file, build absolute URL using BACKEND_URL
     if (finalUrl && finalUrl.startsWith('/uploads/')) {
       const base = BACKEND_URL.replace(/\/+$/, '');
       finalUrl = `${base}${finalUrl}`;
@@ -238,7 +258,7 @@ export const downloadResource = async (req, res, next) => {
       });
     }
 
-    // Redirect user to the actual file URL
+    // Redirect user to the actual external file URL
     res.redirect(302, finalUrl);
   } catch (err) {
     next(err);
