@@ -1,6 +1,8 @@
+import path from 'path';
 import { Resource } from '../models/Resource.js';
 import { Report } from '../models/Report.js';
 import { transformStorageUrl } from '../services/storageService.js';
+import { uploadFileToGridFS, deleteFromGridFS } from '../services/gridfsService.js';
 
 export const getAdminResources = async (req, res, next) => {
   try {
@@ -188,6 +190,12 @@ export const deleteResource = async (req, res, next) => {
 
     await Report.deleteMany({ resourceId: req.params.id });
 
+    // Clean up GridFS file if it was a local upload
+    if (resource.fileUrl && resource.fileUrl.startsWith('/uploads/')) {
+      const filename = path.basename(resource.fileUrl);
+      deleteFromGridFS(filename).catch(() => {});
+    }
+
     res.status(200).json({
       success: true,
       message: 'Resource deleted successfully'
@@ -341,6 +349,22 @@ export const uploadPdfFile = async (req, res, next) => {
     }
 
     const relativePath = `/uploads/${req.file.filename}`;
+
+    // Persist to MongoDB GridFS so file survives Render deployments & container restarts
+    try {
+      await uploadFileToGridFS(
+        req.file.path,
+        req.file.filename,
+        req.file.mimetype || 'application/pdf',
+        {
+          originalName: req.file.originalname,
+          size: req.file.size
+        }
+      );
+    } catch (gridErr) {
+      console.warn('[GridFS] Warning: Failed to persist to GridFS, saved to local disk only:', gridErr.message);
+    }
+
     res.status(200).json({
       success: true,
       message: 'PDF file uploaded successfully',

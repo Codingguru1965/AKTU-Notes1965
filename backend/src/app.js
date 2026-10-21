@@ -3,6 +3,7 @@ import helmet from 'helmet';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import path from 'path';
+import fs from 'fs';
 import { fileURLToPath } from 'url';
 import { FRONTEND_ORIGIN, NODE_ENV } from './config/env.js';
 import publicRoutes from './routes/publicRoutes.js';
@@ -11,6 +12,7 @@ import { notFoundHandler, errorHandler } from './middleware/errorHandler.js';
 import { requireAdminAuth } from './middleware/authMiddleware.js';
 import { uploadPdfMiddleware } from './middleware/uploadMiddleware.js';
 import { uploadPdfFile } from './controllers/adminResourceController.js';
+import { findGridFSFile, openGridFSDownloadStream } from './services/gridfsService.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -59,7 +61,42 @@ app.use(express.json({ limit: '100kb' }));
 app.use(express.urlencoded({ extended: true, limit: '100kb' }));
 app.use(cookieParser());
 
-// Serve static uploads
+// Serve uploaded PDFs: first check local disk, then stream from persistent MongoDB GridFS
+app.get('/uploads/:filename', async (req, res, next) => {
+  const filename = path.basename(req.params.filename);
+  const localPath = path.resolve(__dirname, '../uploads', filename);
+
+  // 1. If file exists on local disk, serve directly
+  if (fs.existsSync(localPath)) {
+    return res.sendFile(localPath);
+  }
+
+  // 2. If not on local disk (e.g. after Render redeployment/restart), stream from MongoDB GridFS
+  try {
+    const gridFile = await findGridFSFile(filename);
+    if (gridFile) {
+      res.setHeader('Content-Type', gridFile.contentType || 'application/pdf');
+      res.setHeader('Content-Length', gridFile.length);
+      res.setHeader('Content-Disposition', `inline; filename="${filename}"`);
+      res.setHeader('Cache-Control', 'public, max-age=86400'); // Cache for 1 day
+
+      // Cache to local disk in background for faster subsequent requests
+      const writeStream = fs.createWriteStream(localPath);
+      const cacheStream = openGridFSDownloadStream(filename);
+      cacheStream.pipe(writeStream).on('error', () => {});
+
+      const clientStream = openGridFSDownloadStream(filename);
+      return clientStream.pipe(res);
+    }
+  } catch (err) {
+    console.error('[Uploads] GridFS stream error:', err.message);
+  }
+
+  // 3. Fall through to static middleware or notFoundHandler
+  next();
+});
+
+// Serve static uploads directory as fallback
 app.use('/uploads', express.static(path.resolve(__dirname, '../uploads')));
 
 app.use('/api', publicRoutes);

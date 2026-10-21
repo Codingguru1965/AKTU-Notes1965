@@ -10,7 +10,8 @@
     "seed": "node src/scripts/seed.js",
     "create-admin": "node src/scripts/createAdmin.js",
     "export-db": "node src/scripts/migrateDatabase.js export",
-    "import-db": "node src/scripts/migrateDatabase.js import"
+    "import-db": "node src/scripts/migrateDatabase.js import",
+    "sync-gridfs": "node src/scripts/syncGridFS.js"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",

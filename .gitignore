@@ -28,5 +28,6 @@ backup/
 /frontend-git-backup/
 
 # Uploaded files
-backend/uploads/*
-!backend/uploads/.gitkeep
+# Temporary test files only
+backend/uploads/test-*.pdf
+backend/uploads/sample-*.pdf

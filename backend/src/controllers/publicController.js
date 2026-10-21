@@ -6,6 +6,7 @@ import { Report } from '../models/Report.js';
 import { transformStorageUrl } from '../services/storageService.js';
 import { BRANCHES, RESOURCE_TYPES, SEMESTERS } from '../config/constants.js';
 import { BACKEND_URL } from '../config/env.js';
+import { findGridFSFile, openGridFSDownloadStream } from '../services/gridfsService.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -229,16 +230,31 @@ export const downloadResource = async (req, res, next) => {
     // Increment download count in background (non-blocking)
     Resource.findByIdAndUpdate(req.params.id, { $inc: { downloadCount: 1 } }).catch(() => {});
 
-    // If file is stored locally on disk, send directly with Content-Disposition: attachment
+    // If file is stored as a local upload
     if (resource.fileUrl && resource.fileUrl.startsWith('/uploads/')) {
       const filename = path.basename(resource.fileUrl);
-      const filePath = path.resolve(__dirname, '../../uploads', filename);
+      const cleanTitle = (resource.title || 'document').replace(/[^a-zA-Z0-9_-]/g, '_');
+      const prefix = resource.subjectCode ? `${resource.subjectCode}_` : '';
+      const downloadName = `${prefix}${cleanTitle}.pdf`;
 
+      // 1. Check local disk
+      const filePath = path.resolve(__dirname, '../../uploads', filename);
       if (fs.existsSync(filePath)) {
-        const cleanTitle = (resource.title || 'document').replace(/[^a-zA-Z0-9_-]/g, '_');
-        const prefix = resource.subjectCode ? `${resource.subjectCode}_` : '';
-        const downloadName = `${prefix}${cleanTitle}.pdf`;
         return res.download(filePath, downloadName);
+      }
+
+      // 2. Fallback to persistent MongoDB GridFS
+      try {
+        const gridFile = await findGridFSFile(filename);
+        if (gridFile) {
+          res.setHeader('Content-Type', gridFile.contentType || 'application/pdf');
+          res.setHeader('Content-Length', gridFile.length);
+          res.setHeader('Content-Disposition', `attachment; filename="${downloadName}"`);
+          const readStream = openGridFSDownloadStream(filename);
+          return readStream.pipe(res);
+        }
+      } catch (gridErr) {
+        console.error('[Download] GridFS error:', gridErr.message);
       }
     }
 
