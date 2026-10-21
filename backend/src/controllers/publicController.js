@@ -2,6 +2,7 @@ import { Resource } from '../models/Resource.js';
 import { Report } from '../models/Report.js';
 import { transformStorageUrl } from '../services/storageService.js';
 import { BRANCHES, RESOURCE_TYPES, SEMESTERS } from '../config/constants.js';
+import { BACKEND_URL } from '../config/env.js';
 
 export const getHealth = (req, res) => {
   res.status(200).json({
@@ -199,6 +200,46 @@ export const reportResource = async (req, res, next) => {
       message: 'Report submitted successfully. Thank you for helping keep AKTU Notes1965 updated!',
       data: { id: report._id }
     });
+  } catch (err) {
+    next(err);
+  }
+};
+
+export const downloadResource = async (req, res, next) => {
+  try {
+    const resource = await Resource.findOne({
+      _id: req.params.id,
+      isPublished: true
+    }).lean();
+
+    if (!resource) {
+      return res.status(404).json({
+        success: false,
+        error: 'Resource not found or is currently unpublished.'
+      });
+    }
+
+    // Increment download count in background (non-blocking)
+    Resource.findByIdAndUpdate(req.params.id, { $inc: { downloadCount: 1 } }).catch(() => {});
+
+    const transformed = transformStorageUrl(resource.fileUrl);
+    let finalUrl = transformed.downloadUrl;
+
+    // If local upload, build absolute URL using BACKEND_URL
+    if (finalUrl && finalUrl.startsWith('/uploads/')) {
+      const base = BACKEND_URL.replace(/\/+$/, '');
+      finalUrl = `${base}${finalUrl}`;
+    }
+
+    if (!finalUrl) {
+      return res.status(404).json({
+        success: false,
+        error: 'File not available for download.'
+      });
+    }
+
+    // Redirect user to the actual file URL
+    res.redirect(302, finalUrl);
   } catch (err) {
     next(err);
   }

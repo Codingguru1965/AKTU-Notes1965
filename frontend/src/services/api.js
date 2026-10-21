@@ -3,6 +3,9 @@ import axios from 'axios';
 const rawApiUrl = (import.meta.env.VITE_API_URL || 'http://localhost:5000/api').trim().replace(/\/+$/, '');
 const API_BASE_URL = rawApiUrl.endsWith('/api') ? rawApiUrl : `${rawApiUrl}/api`;
 
+// Backend host (without /api suffix) — used for resolving /uploads/ URLs
+export const API_HOST = API_BASE_URL.replace(/\/api\/?$/, '');
+
 const api = axios.create({
   baseURL: API_BASE_URL,
   withCredentials: true,

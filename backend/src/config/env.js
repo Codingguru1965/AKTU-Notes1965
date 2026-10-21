@@ -8,6 +8,7 @@ export const FRONTEND_ORIGIN = process.env.FRONTEND_ORIGIN || 'http://localhost:
 export const JWT_SECRET = process.env.JWT_SECRET || 'dev_secret_aktu_notes_1965_minimum_32_characters_key';
 export const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || '24h';
 export const COOKIE_NAME = process.env.COOKIE_NAME || 'aktu_token';
+export const BACKEND_URL = process.env.BACKEND_URL || `http://localhost:${process.env.PORT || 5000}`;
 
 // Security validation
 if (NODE_ENV === 'production') {

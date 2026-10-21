@@ -5,7 +5,8 @@ import {
   getResourceById,
   getFilters,
   getSubjects,
-  reportResource
+  reportResource,
+  downloadResource
 } from '../controllers/publicController.js';
 import { validate } from '../middleware/validate.js';
 import { resourceQuerySchema } from '../validators/resourceValidator.js';
@@ -19,6 +20,7 @@ router.use(publicRateLimiter);
 router.get('/health', getHealth);
 router.get('/resources', validate(resourceQuerySchema, 'query'), getResources);
 router.get('/resources/:id', getResourceById);
+router.get('/resources/:id/download', downloadResource);
 router.get('/filters', getFilters);
 router.get('/subjects', getSubjects);
 router.post('/reports', reportRateLimiter, validate(createReportSchema, 'body'), reportResource);

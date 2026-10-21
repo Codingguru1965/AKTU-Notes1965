@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
 import { FiDownload, FiExternalLink, FiShare2, FiAlertCircle, FiCheck } from 'react-icons/fi';
+import { API_HOST } from '../../services/api';
 
 export const ResourceCard = ({ resource, onReport }) => {
   const [copied, setCopied] = useState(false);
 
   const handleCopyLink = async () => {
     try {
-      const link = resource.downloadUrl || resource.fileUrl;
+      const link = window.location.origin + '/browse';
       await navigator.clipboard.writeText(link);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
@@ -24,8 +25,16 @@ export const ResourceCard = ({ resource, onReport }) => {
     }
   };
 
-  const downloadHref = resource.downloadUrl || resource.fileUrl;
-  const previewHref = resource.previewUrl || resource.fileUrl;
+  // Use the backend download endpoint — it increments downloadCount and redirects to actual file
+  const downloadHref = `${API_HOST}/api/resources/${resource._id}/download`;
+
+  // Preview: use previewUrl if different from downloadUrl, else fall back to downloadUrl
+  const rawDownload = resource.downloadUrl || resource.fileUrl || '';
+  const rawPreview = resource.previewUrl || resource.fileUrl || '';
+  const isLocalFile = rawDownload.startsWith('/uploads/') || rawPreview.startsWith('/uploads/');
+  const previewHref = isLocalFile
+    ? `${API_HOST}${rawPreview.startsWith('/') ? rawPreview : '/' + rawPreview}`
+    : rawPreview;
 
   return (
     <article className='resource-card p-3 position-relative' aria-label={resource.title}>
@@ -76,8 +85,7 @@ export const ResourceCard = ({ resource, onReport }) => {
         <div className='d-flex gap-2 flex-grow-1'>
           <a
             href={downloadHref}
-            target='_blank'
-            rel='noopener noreferrer'
+            download
             className='btn btn-primary-aktu btn-sm d-inline-flex align-items-center justify-content-center gap-1 flex-grow-1 py-2'
             aria-label={`Download PDF for ${resource.title}`}
           >
@@ -85,7 +93,7 @@ export const ResourceCard = ({ resource, onReport }) => {
             <span>Download PDF</span>
           </a>
 
-          {previewHref !== downloadHref && (
+          {rawPreview && rawPreview !== rawDownload && (
             <a
               href={previewHref}
               target='_blank'
